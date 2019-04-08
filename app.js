@@ -40,7 +40,8 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-mongoose.connect(process.env.MONGO, { useNewUrlParser: true }, function (err) {
+//Connect to mongodb
+mongoose.connect(process.env.MONGO, { useNewUrlParser: true, useCreateIndex: true }, function (err) {
   if (err) {
     throw err;
   } else {

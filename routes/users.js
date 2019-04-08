@@ -1,10 +1,56 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
+/* Create User */
+router.post('/register', function (req, res) {
+  const { email, name, password } = req.body
+  console.log(req)
+  if (!name || !email || !password)
+    return res.status(401).json({ msg: 'Please enter all fields' })
+  //Check if email already exist
+  User.findOne({ email })
+    .then(user => {
+      if (user)
+        return res.status(401).json({ msg: 'User already exists' })
+    })
+  //Create new user with the req data
+  const newUser = new User({
+    email: email,
+    name: name,
+    password: password
+  })
+  bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(newUser.password, salt, (err, hash) => {
+      if (err) throw err
+      newUser.password = hash
+      newUser.save()
+        .then(user => {
+          //Create token and send it with the response
+          let token = jwt.sign(
+            { id: user.id, name: user.name, email: user.email },
+            process.env.JWTSECRET, {
+              expiresIn: 2500
+            })
+          res.json({
+            token,
+            user: {
+              id: user.id,
+              name: user.name,
+              email: user.email
+            }
+          })
+        })
+
+    })
+  })
+});
+
+/* Login user */
+router.post('/', function (req, res) {
+  res.send('login');
 });
 
 module.exports = router;
