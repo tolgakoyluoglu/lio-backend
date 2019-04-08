@@ -10,7 +10,7 @@ router.post('/register', function (req, res) {
   console.log(req)
   if (!name || !email || !password)
     return res.status(401).json({ msg: 'Please enter all fields' })
-  //Check if email already exist
+  //Check if email already exists
   User.findOne({ email })
     .then(user => {
       if (user)
@@ -49,8 +49,36 @@ router.post('/register', function (req, res) {
 });
 
 /* Login user */
-router.post('/', function (req, res) {
-  res.send('login');
-});
-
+router.post('/login', (req, res) => {
+  const { email, password } = req.body
+  User.findOne({ email })
+    .then(user => {
+      if (user) {
+        if (bcrypt.compare(password, user.password)) {
+          let token = jwt.sign(
+            { id: user.id, email: user.email, name: user.name },
+            process.env.JWTSECRET, {
+              expiresIn: 2500
+            })
+          res.json({
+            token,
+            user: {
+              id: user.id,
+              name: user.name,
+              email: user.email
+            }
+          })
+        } else {
+          res.status(401).json({
+            msg: 'Email or password does not match'
+          })
+        }
+      } else {
+        res.status(401).json({ msg: 'User does not exist' })
+      }
+    })
+    .catch(err => {
+      res.send('error:' + err)
+    })
+})
 module.exports = router;
