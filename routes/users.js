@@ -81,4 +81,24 @@ router.post('/login', (req, res) => {
       res.send('error:' + err)
     })
 })
+
+/* Get user */
+router.get('/:id', (req, res) => {
+  const id = req.params.id;
+
+  User.findById(id)
+    .then(user => {
+      res.json({
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      });
+    })
+    .catch(err => {
+      res.status(404).json({ msg: 'User does not exist' });
+    });
+})
+
 module.exports = router;
