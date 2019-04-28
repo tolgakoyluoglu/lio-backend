@@ -54,25 +54,27 @@ router.post('/login', (req, res) => {
   User.findOne({ email })
     .then(user => {
       if (user) {
-        if (bcrypt.compare(password, user.password)) {
-          let token = jwt.sign(
-            { id: user.id, email: user.email, name: user.name },
-            process.env.JWTSECRET, {
-              expiresIn: 2500
+        bcrypt.compare(password, user.password).then(isAuthed => {
+          if (isAuthed) {
+            let token = jwt.sign(
+              { id: user.id, email: user.email, name: user.name },
+              process.env.JWTSECRET, {
+                expiresIn: 2500
+              })
+            res.json({
+              token,
+              user: {
+                id: user.id,
+                name: user.name,
+                email: user.email
+              }
             })
-          res.json({
-            token,
-            user: {
-              id: user.id,
-              name: user.name,
-              email: user.email
-            }
-          })
-        } else {
-          res.status(401).json({
-            msg: 'Email or password does not match'
-          })
-        }
+          } else {
+            res.status(401).json({
+              msg: 'Email or password does not match'
+            })
+          }
+        })
       } else {
         res.status(401).json({ msg: 'User does not exist' })
       }
