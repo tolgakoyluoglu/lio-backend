@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
 const Profile = require('../models/Profile');
 
 /* Get Feed */
@@ -20,12 +19,12 @@ router.get('/', async (req, res) => {
                     }
                 }
             })
-            .catch(e => res.json({ msg: 'Could not get feed' }));
+            .catch(e => res.status(500).json({ msg: 'Could not get feed' }));
     } else {
         // Send public feed, users and companies?
-        const users = await User.find();
+        const profiles = await Profile.find().populate('user', ['name']);
 
-        return res.json({ users });
+        return res.json({ profiles });
     }
 });
 
