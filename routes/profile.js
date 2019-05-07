@@ -21,7 +21,7 @@ router.get('/user/:id', async (req, res) => {
 
 //Create user profile
 router.post('/', auth, async (req, res) => {
-    const { type, status, description, location, website, skills, title, company, locationExp, descriptionExp, fromExp, toExp, isEmployed, school, degree, field, descriptionEducation, isStudying, from, to } = req.body
+    const { type, status, description, location, website, skills } = req.body
     const profileData = {}
     profileData.user = req.user.id
     if (type) profileData.type = type
@@ -32,25 +32,6 @@ router.post('/', auth, async (req, res) => {
     if (skills) {
         profileData.skills = skills.split(',').map(skill => skill.trim())
     }
-    //Experience fields
-    profileData.exp = {}
-    if (title) profileData.exp.title = title
-    if (company) profileData.exp.company = company
-    if (locationExp) profileData.exp.location = location
-    if (descriptionExp) profileData.exp.description = description
-    if (fromExp) profileData.exp.from = from
-    if (toExp) profileData.exp.to = to
-    if (isEmployed) profileData.exp.isEmployed = isEmployed
-    //Education fields
-    profileData.education = {}
-    if (school) profileData.exp.school = school
-    if (degree) profileData.exp.degree = degree
-    if (field) profileData.exp.field = field
-    if (descriptionEducation) profileData.exp.description = description
-    if (from) profileData.exp.from = from
-    if (to) profileData.exp.to = to
-    if (isStudying) profileData.exp.isStudying = isStudying
-
     try {
         //Update the profile if there is a one already for the user
         let profile = await Profile.findOne({ user: req.user.id })
@@ -74,6 +55,39 @@ router.post('/', auth, async (req, res) => {
     res.send(profileData)
 })
 
+//Put to /exp, add experience to profiles
+router.put('/exp', auth, async (req, res) => {
+    const { title, company, location, description, isEmployed, from, to } = req.body
+    const exp = { title, company, location, description, isEmployed, from, to }
+    try {
+        const profile = await Profile.findOne({ user: req.user.id })
+        profile.experience.unshift(exp)
+
+        await profile.save()
+        res.json(profile)
+
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).send('Error when saving experience')
+    }
+})
+
+//Put to /education, add education to profiles
+router.put('/education', auth, async (req, res) => {
+    const { school, degree, field, description, isStudying, from, to } = req.body
+    const education = { school, degree, field, description, isStudying, from, to }
+    try {
+        const profile = await Profile.findOne({ user: req.user.id })
+        profile.education.unshift(education)
+
+        await profile.save()
+        res.json(education)
+
+    } catch (err) {
+        console.error(err.message)
+        res.status(500).send('Error when saving experience')
+    }
+})
 //Delete profile and user
 router.delete('/', auth, async (req, res) => {
     try {
