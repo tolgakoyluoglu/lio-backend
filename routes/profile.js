@@ -74,4 +74,15 @@ router.post('/', auth, async (req, res) => {
     res.send(profileData)
 })
 
+//Delete profile and user
+router.delete('/', auth, async (req, res) => {
+    try {
+        await Profile.findOneAndRemove({ user: req.user.id })
+        await User.findOneAndRemove({ _id: req.user.id })
+        res.json({ msg: 'User and profile removed' })
+    } catch (err) {
+        res.status(500).send('Error when removing user')
+    }
+})
+
 module.exports = router;

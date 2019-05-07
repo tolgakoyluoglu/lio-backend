@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 /* Create User */
 router.post('/register', function (req, res) {
   const { email, name, password } = req.body
-  console.log(req)
+  console.log(req.body)
   if (!name || !email || !password)
     return res.status(401).json({ msg: 'Please enter all fields' })
   //Check if email already exists

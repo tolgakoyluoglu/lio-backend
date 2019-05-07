@@ -7,7 +7,7 @@ module.exports = function (req, res, next) {
         return res.status(401).json({ msg: 'No token recieved' })
     }
     try {
-        const decoded = jwt.verify(token, 'liojsonsecretkey')
+        const decoded = jwt.verify(token, process.env.JWTSECRET)
         req.user = decoded.user
         next()
     } catch (err) {
