@@ -10,7 +10,7 @@ const auth = (req, res, next) => {
         if (token && bearerHeader.startsWith('Bearer ')) {
             jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
                 if (!err) {
-                    User.findById(decoded.id)
+                    User.findById(decoded.user.id)
                         .then(user => {
                             req.auth = user;
                             req.authErr = false;
