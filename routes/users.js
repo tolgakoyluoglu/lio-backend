@@ -29,8 +29,9 @@ router.post('/register', function (req, res) {
       newUser.save()
         .then(user => {
           //Create token and send it with the response
+          const payload = { user: { id: user.id, name: user.name, email: user.email } }
           let token = jwt.sign(
-            { id: user.id, name: user.name, email: user.email },
+            payload,
             process.env.JWTSECRET, {
               expiresIn: 2500
             })
