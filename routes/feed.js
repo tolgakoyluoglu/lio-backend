@@ -4,8 +4,8 @@ const Profile = require('../models/Profile');
 
 /* Get Feed */
 router.get('/', async (req, res) => {
-    if (req.auth) {
-        Profile.findById(req.auth.id)
+    if (req.user) {
+        Profile.findById(req.user.id)
             .then(profile => {
                 if (profile) {
                     // Check type, send logged in feed

@@ -4,7 +4,7 @@ const User = require('../models/User');
 const auth = (req, res, next) => {
     const bearerHeader = req.headers.authorization;
 
-    const token = bearerHeader ? bearerHeader.split(' ')[1] : false;
+    const token = typeof bearerHeader === 'string' ? bearerHeader.split(' ')[1] : false;
 
     try {
         if (token && bearerHeader.startsWith('Bearer ')) {
@@ -12,7 +12,7 @@ const auth = (req, res, next) => {
                 if (!err) {
                     User.findById(decoded.user.id)
                         .then(user => {
-                            req.auth = user;
+                            req.user = user;
                             req.authErr = false;
 
                             next();
@@ -28,7 +28,7 @@ const auth = (req, res, next) => {
             throw 'Invalid token type';
         }
     } catch (e) {
-        req.auth = false;
+        req.user = false;
         req.authErr = e;
 
         next();
