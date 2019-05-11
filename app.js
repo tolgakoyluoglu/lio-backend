@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 require('dotenv').config()
 const cors = require('cors');
 const authMiddleware = require('./middleware/checkAuth');
+const rejectExpiredToken = require('./middleware/rejectExpiredToken');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
+app.use(rejectExpiredToken);
 app.use(authMiddleware);
 
 app.use('/', indexRouter);
