@@ -20,11 +20,14 @@ router.get('/user/:id', async (req, res) => {
 })
 
 //Create user profile
-router.post('/', auth, async (req, res) => {
-    const { type, status, description, location, website, skills } = req.body
+router.post('/:id', async (req, res) => {
+    const { firstname, surname, picture, type, status, description, location, website, skills } = req.body
     const profileData = {}
-    profileData.user = req.user.id
+    profileData.user = req.params.id
     if (type) profileData.type = type
+    if (firstname) profileData.firstname = firstname
+    if (surname) profileData.surname = surname
+    if (picture) profileData.picture = picture
     if (status) profileData.status = status
     if (description) profileData.description = description
     if (location) profileData.location = location
@@ -34,10 +37,10 @@ router.post('/', auth, async (req, res) => {
     }
     try {
         //Update the profile if there is a one already for the user
-        let profile = await Profile.findOne({ user: req.user.id })
+        let profile = await Profile.findOne({ user: req.params.id })
         if (profile) {
             profile = await Profile.findOneAndUpdate(
-                { user: req.user.id },
+                { user: req.params.id },
                 { $set: profileData },
                 { new: true }
             )
