@@ -1,10 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Ad = require('../models/Ad');
+const Profile = require('../models/Profile');
 const requireAuth = require('../middleware/requireAuth');
 
 /* Create Ad */
-router.post('/', requireAuth, (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
+    const profile = await Profile.findOne({ user: req.user.id });
+
+    if (profile.type !== 'Company') {
+        return res.status(401).json({ msg: 'Invalid user type' });
+    }
+
     const { title, description, skills, location, endDate } = req.body;
 
     let ad = new Ad({
@@ -17,7 +24,7 @@ router.post('/', requireAuth, (req, res) => {
     }).save((err, ad) => {
         if (err) return res.status(400).json({ msg: 'Invalid data' });
 
-        return res.json(ad);
+        return res.status(201).json(ad);
     });
 });
 

@@ -1,30 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const Profile = require('../models/Profile');
+const Ad = require('../models/Ad');
 
 /* Get Feed */
 router.get('/', async (req, res) => {
     if (req.user) {
-        Profile.findById(req.user.id)
-            .then(profile => {
-                if (profile) {
-                    // Check type, send logged in feed
-                    switch (profile.type) {
-                        case 'Student':
-                            // Send list of companies and ads
-                            break;
-                        case 'Company':
-                            // Send list of students
-                            break;
-                    }
-                }
-            })
-            .catch(e => res.status(500).json({ msg: 'Could not get feed' }));
-    } else {
-        // Send public feed, users and companies?
-        const profiles = await Profile.find().populate('user', ['name']);
+        const profile = await Profile.findOne({ user: req.user.id });
 
-        return res.json({ profiles });
+        // Check type, send logged in feed
+        switch (profile.type) {
+            case 'Student':
+                const companies = await Profile.find({ type: 'Company' }).populate('user', ['name']);
+                const ads = await Ad.find();
+
+                return res.json({ ads, profiles: companies });
+            case 'Company':
+                const students = await Profile.find({ type: 'Student' }).populate('user', ['name']);
+
+                return res.json({ profiles: students });
+            default:
+                return res.status(500).json({ msg: 'Could not get feed' });
+        }
+    } else {
+        // Send public feed - students, companies, ads
+        const profiles = await Profile.find().populate('user', ['name']);
+        const ads = await Ad.find();
+
+        return res.json({ profiles, ads });
     }
 });
 
