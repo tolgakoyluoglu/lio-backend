@@ -4,11 +4,11 @@ const ProfileSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
     firstname: { type: String },
     surname: { type: String },
-    type: { type: String },
-    status: { type: String },
+    type: { type: String, required: true },    //company or student
+    status: { type: String }, //Employed or unemployed etc
     description: { type: String },
     skills: { type: [String] },
-    location: { type: String },
+    location: { type: String }, //Either you write your own information on all fields or what you require as company ? Probably need to make a better solution for this later..
     picture: { type: String },
     website: { type: String },
     language: { type: String },
@@ -35,6 +35,6 @@ const ProfileSchema = new mongoose.Schema({
             isStudying: { type: Boolean, default: false },
         }
     ]
-})
+});
 
 module.exports = mongoose.model('Profile', ProfileSchema);

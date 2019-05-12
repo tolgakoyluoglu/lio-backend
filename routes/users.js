@@ -1,15 +1,19 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../models/User');
+const Profile = require('../models/Profile');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 /* Create User */
 router.post('/register', function (req, res) {
-    const { email, password } = req.body
-    console.log(req.body)
-    if (!email || !password)
+    const { email, name, password, type } = req.body
+    if (!name || !email || !password || !type)
         return res.status(401).json({ msg: 'Please enter all fields' })
+    else if (!['Student', 'Company'].includes(type)) {
+        return res.status(401).json({ msg: 'Please enter a valid user type' })
+    }
+
     //Check if email already exists
     User.findOne({ email })
         .then(user => {
@@ -18,15 +22,20 @@ router.post('/register', function (req, res) {
         })
     //Create new user with the req data
     const newUser = new User({
-        email: email,
-        password: password
+        email,
+        password
     })
     bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(newUser.password, salt, (err, hash) => {
             if (err) throw err
             newUser.password = hash
             newUser.save()
-                .then(user => {
+                .then(async user => {
+                    const profile = await new Profile({
+                        user: user.id,
+                        type
+                    }).save();
+
                     //Create token and send it with the response
                     const payload = { user: { id: user.id, email: user.email } }
                     let token = jwt.sign(
