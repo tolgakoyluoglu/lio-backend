@@ -47,7 +47,8 @@ router.post('/register', function (req, res) {
                         token,
                         user: {
                             id: user.id,
-                            email: user.email
+                            email: user.email,
+                            type: profile.type
                         }
                     })
                 })
@@ -62,8 +63,10 @@ router.post('/login', (req, res) => {
     User.findOne({ email })
         .then(user => {
             if (user) {
-                bcrypt.compare(password, user.password).then(isAuthed => {
+                bcrypt.compare(password, user.password).then(async isAuthed => {
                     if (isAuthed) {
+                        const profile = await Profile.findOne({ user: user.id });
+
                         const payload = { user: { id: user.id, email: user.email } }
                         let token = jwt.sign(
                             payload,
@@ -74,7 +77,8 @@ router.post('/login', (req, res) => {
                             token,
                             user: {
                                 id: user.id,
-                                email: user.email
+                                email: user.email,
+                                type: profile.type
                             }
                         })
                     } else {
