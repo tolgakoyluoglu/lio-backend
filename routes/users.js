@@ -6,9 +6,9 @@ const jwt = require('jsonwebtoken');
 
 /* Create User */
 router.post('/register', function (req, res) {
-  const { email, name, password } = req.body
+  const { email, password } = req.body
   console.log(req.body)
-  if (!name || !email || !password)
+  if (!email || !password)
     return res.status(401).json({ msg: 'Please enter all fields' })
   //Check if email already exists
   User.findOne({ email })
@@ -19,7 +19,6 @@ router.post('/register', function (req, res) {
   //Create new user with the req data
   const newUser = new User({
     email: email,
-    name: name,
     password: password
   })
   bcrypt.genSalt(10, (err, salt) => {
@@ -29,7 +28,7 @@ router.post('/register', function (req, res) {
       newUser.save()
         .then(user => {
           //Create token and send it with the response
-          const payload = { user: { id: user.id, name: user.name, email: user.email } }
+          const payload = { user: { id: user.id, email: user.email } }
           let token = jwt.sign(
             payload,
             process.env.JWTSECRET, {
@@ -39,7 +38,6 @@ router.post('/register', function (req, res) {
             token,
             user: {
               id: user.id,
-              name: user.name,
               email: user.email
             }
           })
@@ -58,7 +56,7 @@ router.post('/login', (req, res) => {
         bcrypt.compare(password, user.password).then(isAuthed => {
           if (isAuthed) {
             let token = jwt.sign(
-              { id: user.id, email: user.email, name: user.name },
+              { id: user.id, email: user.email },
               process.env.JWTSECRET, {
                 expiresIn: 2500
               })
@@ -66,7 +64,6 @@ router.post('/login', (req, res) => {
               token,
               user: {
                 id: user.id,
-                name: user.name,
                 email: user.email
               }
             })

@@ -20,24 +20,25 @@ router.get('/user/:id', async (req, res) => {
 })
 
 //Create user profile
-router.post('/', auth, async (req, res) => {
-    const { type, status, description, location, website, skills } = req.body
+router.post('/:id', async (req, res) => {
+    const { firstname, surname, picture, type, status, description, location, website, skills } = req.body
     const profileData = {}
-    profileData.user = req.user.id
+    profileData.user = req.params.id
     if (type) profileData.type = type
+    if (firstname) profileData.firstname = firstname
+    if (surname) profileData.surname = surname
+    if (picture) profileData.picture = picture
     if (status) profileData.status = status
     if (description) profileData.description = description
     if (location) profileData.location = location
     if (website) profileData.website = website
-    if (skills) {
-        profileData.skills = skills.split(',').map(skill => skill.trim())
-    }
+    if (skills) profileData.skills = skills
     try {
         //Update the profile if there is a one already for the user
-        let profile = await Profile.findOne({ user: req.user.id })
+        let profile = await Profile.findOne({ user: req.params.id })
         if (profile) {
             profile = await Profile.findOneAndUpdate(
-                { user: req.user.id },
+                { user: req.params.id },
                 { $set: profileData },
                 { new: true }
             )
@@ -56,11 +57,11 @@ router.post('/', auth, async (req, res) => {
 })
 
 //Put to /exp, add experience to profiles
-router.put('/exp', auth, async (req, res) => {
+router.put('/experience/:id', async (req, res) => {
     const { title, company, location, description, isEmployed, from, to } = req.body
     const exp = { title, company, location, description, isEmployed, from, to }
     try {
-        const profile = await Profile.findOne({ user: req.user.id })
+        const profile = await Profile.findOne({ user: req.params.id })
         profile.experience.unshift(exp)
 
         await profile.save()
@@ -73,11 +74,11 @@ router.put('/exp', auth, async (req, res) => {
 })
 
 //Put to /education, add education to profiles
-router.put('/education', auth, async (req, res) => {
+router.put('/education/:id', async (req, res) => {
     const { school, degree, field, description, isStudying, from, to } = req.body
     const education = { school, degree, field, description, isStudying, from, to }
     try {
-        const profile = await Profile.findOne({ user: req.user.id })
+        const profile = await Profile.findOne({ user: req.params.id })
         profile.education.unshift(education)
 
         await profile.save()
