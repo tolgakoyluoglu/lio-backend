@@ -1,9 +1,11 @@
 const jwt = require('jsonwebtoken')
 
 module.exports = function (req, res, next) {
-    const token = req.header('x-auth-token')
+    const bearerHeader = req.headers.authorization;
 
-    if (!token) {
+    const token = typeof bearerHeader === 'string' ? bearerHeader.split(' ')[1] : false;
+
+    if (!token || !bearerHeader.startsWith('Bearer ')) {
         return res.status(401).json({ msg: 'No token recieved' })
     }
     try {
