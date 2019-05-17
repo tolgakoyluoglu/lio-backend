@@ -1,15 +1,16 @@
 const mongoose = require('mongoose');
 
 const ProfileSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String }, // Company name
     firstname: { type: String },
     surname: { type: String },
     type: { type: String, required: true },    //company or student
     status: { type: String }, //Employed or unemployed etc
-    description: { type: String },
+    description: { type: String, default: '--' },
     skills: { type: [String] },
     location: { type: String }, //Either you write your own information on all fields or what you require as company ? Probably need to make a better solution for this later..
-    picture: { type: String },
+    picture: { type: String, default: 'https://i.imgur.com/EuSn6V6.jpg' },
     website: { type: String },
     language: { type: String },
     date: { type: Date, default: Date.now },

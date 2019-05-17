@@ -28,4 +28,15 @@ router.post('/', requireAuth, async (req, res) => {
     });
 });
 
+/* Get Ad */
+router.get('/:id', async (req, res) => {
+    try {
+        const ad = await Ad.findById(req.params.id).populate('profile', ['name']).lean();
+
+        return res.json({ ad });
+    } catch (e) {
+        return res.status(400).json({ msg: 'Invalid id' });
+    }
+});
+
 module.exports = router;

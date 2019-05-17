@@ -13,8 +13,8 @@ router.get('/', async (req, res) => {
         // Check type, send logged in feed
         switch (profile.type) {
             case 'Student':
-                const companies = (await Profile.find({ type: 'Company' }).limit(resLimit / 2).populate('user', ['name']).lean()).map(i => ({ ...i, _itemType: 'profile' }));
-                const ads = (await Ad.find().limit(resLimit / 2).lean()).map(i => ({ ...i, _itemType: 'ad' }));
+                const companies = (await Profile.find({ type: 'Company' }).limit(resLimit / 2).lean()).map(i => ({ ...i, _itemType: 'profile' }));
+                const ads = (await Ad.find().populate('profile', ['name']).limit(resLimit / 2).lean()).map(i => ({ ...i, _itemType: 'ad' }));
 
                 return res.json({ items: [...ads, ...companies] });
             case 'Company':
@@ -26,8 +26,8 @@ router.get('/', async (req, res) => {
         }
     } else {
         // Send public feed - students, companies, ads
-        const profiles = (await Profile.find().limit(resLimit / 2).populate('user', ['name']).lean()).map(i => ({ ...i, _itemType: 'profile' }));
-        const ads = (await Ad.find().limit(resLimit / 2).limit(10).lean()).map(i => ({ ...i, _itemType: 'ad' }));
+        const profiles = (await Profile.find().limit(resLimit / 2).lean()).map(i => ({ ...i, _itemType: 'profile' }));
+        const ads = (await Ad.find().populate('profile', ['name']).limit(resLimit / 2).lean()).map(i => ({ ...i, _itemType: 'ad' }));
 
         return res.json({ items: [...profiles, ...ads] });
     }

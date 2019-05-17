@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const AdSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    profile: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
     skills: { type: [String], required: true },

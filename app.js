@@ -36,7 +36,7 @@ app.use('/users', usersRouter);
 app.use('/profile', profileRouter);
 app.use('/auth', authRouter);
 app.use('/feed', feedRouter);
-app.use('/ad', adRouter);
+app.use('/ads', adRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
