@@ -5,17 +5,31 @@ const User = require('../models/User')
 const auth = require('../middleware/auth')
 
 // Get users profile
+// router.get('/user', auth, async (req, res) => {
+//     try {
+//         const profile = await Profile.findOne({ user: req.user.id });
+//         if (!profile) {
+//             console.log(req)
+//             return res.status(400).json({ msg: 'No profile for this user' })
+//         }
+//         res.json(profile)
+//     } catch (err) {
+//         console.error(err.message)
+//         console.log(req)
+//         res.status(500).send('Error when trying to get the profile of logged in user')
+//     }
+// })
+
 router.get('/user/:id', async (req, res) => {
     try {
-        const profile = await Profile.findOne({ user: req.params.id }).populate('user', ['name'])
-
+        const profile = await Profile.findOne({ user: req.params.id });
         if (!profile) {
             return res.status(400).json({ msg: 'No profile for this user' })
         }
         res.json(profile)
     } catch (err) {
         console.error(err.message)
-        res.status(500).send('Error, something went wrong in in profile/user route') //Change msg later
+        res.status(500).send('Error when trying to get the profile of logged in user')
     }
 })
 
@@ -90,13 +104,27 @@ router.put('/education/:id', async (req, res) => {
     }
 })
 //Delete profile and user
-router.delete('/', auth, async (req, res) => {
+router.delete('/delete', auth, async (req, res) => {
     try {
         await Profile.findOneAndRemove({ user: req.user.id })
         await User.findOneAndRemove({ _id: req.user.id })
-        res.json({ msg: 'User and profile removed' })
+        res.json({ msg: 'User and profile removed', })
     } catch (err) {
         res.status(500).send('Error when removing user')
+    }
+})
+
+//Delete experience
+router.delete('/experience/:id', auth, async (req, res) => {
+    try {
+        const profile = await Profile.findOne({ user: req.user.id })
+        const remove = profile.experience.map(item => item.id).indexOf(req.user.id)
+        profile.experience.splice(remove, 1)
+
+        await profile.save()
+        res.json({ msg: 'Experience removed' })
+    } catch (error) {
+        res.status(500).send('Error when removing experience')
     }
 })
 
