@@ -7,12 +7,13 @@ const jwt = require('jsonwebtoken');
 
 /* Create User */
 router.post('/register', function (req, res) {
-    const { email, password, type, name, firstname, surname } = req.body
+    const { email, password, type, name, firstname, surname, industry } = req.body
     if (!email ||
         !password ||
         !type ||
         (type === 'Student' && (!firstname || !surname)) ||
-        (type === 'Company' && !name)
+        (type === 'Company' && !name) ||
+        !industry
     )
         return res.status(401).json({ msg: 'Please enter all fields' })
     else if (!['Student', 'Company'].includes(type)) {
@@ -41,7 +42,8 @@ router.post('/register', function (req, res) {
                     const profile = await new Profile({
                         user: user.id,
                         type,
-                        ...nameProps
+                        ...nameProps,
+                        industry
                     }).save();
 
                     //Create token and send it with the response
