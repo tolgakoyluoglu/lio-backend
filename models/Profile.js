@@ -8,6 +8,7 @@ const ProfileSchema = new mongoose.Schema({
     type: { type: String, required: true },    //company or student
     status: { type: String }, //Employed or unemployed etc
     description: { type: String, default: '--' },
+    industry: { type: String },
     skills: { type: [String] },
     location: { type: String }, //Either you write your own information on all fields or what you require as company ? Probably need to make a better solution for this later..
     picture: { type: String, default: 'https://i.imgur.com/EuSn6V6.jpg' },

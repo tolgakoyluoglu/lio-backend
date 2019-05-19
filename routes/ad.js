@@ -20,7 +20,7 @@ router.post('/', requireAuth, async (req, res) => {
         skills,
         location,
         endDate,
-        user: req.user.id
+        profile
     }).save((err, ad) => {
         if (err) return res.status(400).json({ msg: 'Invalid data' });
 
