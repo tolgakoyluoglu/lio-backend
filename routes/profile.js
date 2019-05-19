@@ -20,6 +20,22 @@ router.get('/user', auth, async (req, res) => {
     }
 })
 
+//Search profile
+router.get('/user/:id', auth, async (req, res) => {
+    console.log(req.params.id)
+    try {
+        const profile = await Profile.findOne({ _id: req.params.id });
+        if (!profile) {
+            return res.status(400).json({ msg: 'No profile for this user' })
+        }
+        res.json(profile)
+    } catch (err) {
+        console.error(err.message)
+        console.log(req)
+        res.status(500).send('Error when trying to get the profile of logged in user')
+    }
+})
+
 //Create user profile
 router.post('/', auth, async (req, res) => {
     const { firstname, surname, picture, type, status, description, location, website, skills } = req.body
