@@ -4,40 +4,27 @@ const Profile = require('../models/Profile')
 const User = require('../models/User')
 const auth = require('../middleware/requireAuth')
 
-// Get users profile
-// router.get('/user', auth, async (req, res) => {
-//     try {
-//         const profile = await Profile.findOne({ user: req.user.id });
-//         if (!profile) {
-//             console.log(req)
-//             return res.status(400).json({ msg: 'No profile for this user' })
-//         }
-//         res.json(profile)
-//     } catch (err) {
-//         console.error(err.message)
-//         console.log(req)
-//         res.status(500).send('Error when trying to get the profile of logged in user')
-//     }
-// })
-
-router.get('/user/:id', async (req, res) => {
+//Get users profile
+router.get('/user', auth, async (req, res) => {
     try {
-        const profile = await Profile.findOne({ user: req.params.id });
+        const profile = await Profile.findOne({ user: req.user.id });
         if (!profile) {
+            console.log(req)
             return res.status(400).json({ msg: 'No profile for this user' })
         }
         res.json(profile)
     } catch (err) {
         console.error(err.message)
+        console.log(req)
         res.status(500).send('Error when trying to get the profile of logged in user')
     }
 })
 
 //Create user profile
-router.post('/:id', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     const { firstname, surname, picture, type, status, description, location, website, skills } = req.body
     const profileData = {}
-    profileData.user = req.params.id
+    profileData.user = req.user.id
     if (type) profileData.type = type
     if (firstname) profileData.firstname = firstname
     if (surname) profileData.surname = surname
@@ -49,10 +36,10 @@ router.post('/:id', async (req, res) => {
     if (skills) profileData.skills = skills
     try {
         //Update the profile if there is a one already for the user
-        let profile = await Profile.findOne({ user: req.params.id })
+        let profile = await Profile.findOne({ user: req.user.id })
         if (profile) {
             profile = await Profile.findOneAndUpdate(
-                { user: req.params.id },
+                { user: req.user.id },
                 { $set: profileData },
                 { new: true }
             )
@@ -71,11 +58,11 @@ router.post('/:id', async (req, res) => {
 })
 
 //Put to /exp, add experience to profiles
-router.put('/experience/:id', async (req, res) => {
+router.put('/experience', auth, async (req, res) => {
     const { title, company, location, description, isEmployed, from, to } = req.body
     const exp = { title, company, location, description, isEmployed, from, to }
     try {
-        const profile = await Profile.findOne({ user: req.params.id })
+        const profile = await Profile.findOne({ user: req.user.id })
         profile.experience.unshift(exp)
 
         await profile.save()
@@ -88,11 +75,11 @@ router.put('/experience/:id', async (req, res) => {
 })
 
 //Put to /education, add education to profiles
-router.put('/education/:id', async (req, res) => {
+router.put('/education', auth, async (req, res) => {
     const { school, degree, field, description, isStudying, from, to } = req.body
     const education = { school, degree, field, description, isStudying, from, to }
     try {
-        const profile = await Profile.findOne({ user: req.params.id })
+        const profile = await Profile.findOne({ user: req.user.id })
         profile.education.unshift(education)
 
         await profile.save()
@@ -122,9 +109,23 @@ router.delete('/experience/:id', auth, async (req, res) => {
         profile.experience.splice(remove, 1)
 
         await profile.save()
-        res.json({ msg: 'Experience removed' })
+        res.json(profile)
     } catch (error) {
         res.status(500).send('Error when removing experience')
+    }
+})
+
+//Delete education
+router.delete('/education/:id', auth, async (req, res) => {
+    try {
+        const profile = await Profile.findOne({ user: req.user.id })
+        const remove = profile.education.map(item => item.id).indexOf(req.user.id)
+        profile.education.splice(remove, 1)
+
+        await profile.save()
+        res.json(profile)
+    } catch (error) {
+        res.status(500).send('Error when removing education')
     }
 })
 
