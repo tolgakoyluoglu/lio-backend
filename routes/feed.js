@@ -45,7 +45,6 @@ router.get('/', async (req, res) => {
                     ]
                 })
                     .limit(resLimit)
-                    .populate('user', ['name'])
                     .lean())
                     .map(i => ({ ...i, _itemType: 'profile' }));
 
