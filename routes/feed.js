@@ -7,77 +7,61 @@ const resLimit = 1000;
 
 /* Get Feed */
 router.get('/', async (req, res) => {
-    let conditions = { query: req.query.query || '' };
+    let conditions = {
+        query: req.query.query || '',
+        students: req.query.inclStudents == 'true',
+        companies: req.query.inclCompanies == 'true',
+        ads: req.query.inclAds == 'true',
+        skills: req.query.skills != 'false' ? req.query.skills : false
+    };
 
-    if (req.user) {
-        const profile = await Profile.findOne({ user: req.user.id });
+    const studentConditions = {
+        type: 'Student',
+        $or: [
+            { firstname: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
+            { surname: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
+            { skills: { $in: [conditions.query] } }
+        ]
+    };
 
-        // Check type, send logged in feed
-        switch (profile.type) {
-            case 'Student':
-                const companies = (await Profile.find({
-                    type: 'Company',
-                    name: { $regex: '.*' + conditions.query + '.*', $options: 'i' }
-                })
-                    .limit(resLimit / 2)
-                    .lean())
-                    .map(i => ({ ...i, _itemType: 'profile' }));
+    if (conditions.skills) studentConditions.skills = { $in: [conditions.skills] };
 
-                const ads = (await Ad.find({
-                    $or: [
-                        { title: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
-                        { skills: { $in: [conditions.query] } }
-                    ]
-                })
-                    .populate('profile', ['name'])
-                    .limit(resLimit / 2)
-                    .lean())
-                    .map(i => ({ ...i, _itemType: 'ad' }));
+    const students = conditions.students ? (await Profile.find(studentConditions)
+        .limit(resLimit / 3)
+        .lean())
+        .map(i => ({ ...i, _itemType: 'profile' }))
+        : [];
 
-                return res.json({ items: [...ads, ...companies] });
-            case 'Company':
-                const students = (await Profile.find({
-                    type: 'Student',
-                    $or: [
-                        { firstname: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
-                        { surname: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
-                        { skills: { $in: [conditions.query] } }
-                    ]
-                })
-                    .limit(resLimit)
-                    .lean())
-                    .map(i => ({ ...i, _itemType: 'profile' }));
+    const companyConditions = {
+        type: 'Company',
+        name: { $regex: '.*' + conditions.query + '.*', $options: 'i' }
+    };
 
-                return res.json({ items: students });
-            default:
-                return res.status(500).json({ msg: 'Could not get feed' });
-        }
-    } else {
-        // Send public feed - students, companies, ads
-        const profiles = (await Profile.find({
-            $or: [
-                { firstname: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
-                { surname: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
-                { name: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
-                { skills: { $in: [conditions.query] } }
-            ]
-        })
-            .limit(resLimit / 2)
-            .lean())
-            .map(i => ({ ...i, _itemType: 'profile' }));
-        const ads = (await Ad.find({
-            $or: [
-                { title: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
-                { skills: { $in: [conditions.query] } }
-            ]
-        })
-            .populate('profile', ['name'])
-            .limit(resLimit / 2)
-            .lean())
-            .map(i => ({ ...i, _itemType: 'ad' }));
+    if (conditions.skills) companyConditions.skills = { $in: [conditions.skills] };
 
-        return res.json({ items: [...profiles, ...ads] });
-    }
+    const companies = conditions.companies ? (await Profile.find(companyConditions)
+        .limit(resLimit / 3)
+        .lean())
+        .map(i => ({ ...i, _itemType: 'profile' }))
+        : [];
+
+    const adConditions = {
+        $or: [
+            { title: { $regex: '.*' + conditions.query + '.*', $options: 'i' } },
+            { skills: { $in: [conditions.query] } }
+        ]
+    };
+
+    if (conditions.skills) adConditions.skills = { $in: [conditions.skills] };
+
+    const ads = conditions.ads ? (await Ad.find(adConditions)
+        .populate('profile', ['name'])
+        .limit(resLimit / 3)
+        .lean())
+        .map(i => ({ ...i, _itemType: 'ad' }))
+        : [];
+
+    return res.json({ items: [...ads, ...companies, ...students] });
 });
 
 module.exports = router;

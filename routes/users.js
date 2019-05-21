@@ -58,7 +58,8 @@ router.post('/register', function (req, res) {
                         user: {
                             id: user.id,
                             email: user.email,
-                            type: profile.type
+                            type: profile.type,
+                            skills: profile.skills
                         }
                     })
                 })
@@ -88,7 +89,8 @@ router.post('/login', (req, res) => {
                             user: {
                                 id: user.id,
                                 email: user.email,
-                                type: profile.type
+                                type: profile.type,
+                                skills: profile.skills
                             }
                         })
                     } else {
