@@ -10,7 +10,11 @@ AdminBro.registerAdapter(AdminBroMongoose);
 
 const adminBro = new AdminBro({
     databases: [mongoose],
-    rootPath: '/admin'
+    rootPath: '/admin',
+    branding: {
+        logo: '/img/logo.png',
+        companyName: 'Lio'
+    }
 });
 
 const router = AdminBroExpress.buildAuthenticatedRouter(adminBro, {
