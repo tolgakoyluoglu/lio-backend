@@ -6,6 +6,9 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "admin-bro": "^0.8.7",
+    "admin-bro-expressjs": "^0.1.7",
+    "admin-bro-mongoose": "^0.2.2",
     "bcrypt": "^3.0.6",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.5",
