@@ -1,6 +1,8 @@
 const AdminBro = require('admin-bro');
 const AdminBroExpress = require('admin-bro-expressjs');
 const AdminBroMongoose = require('admin-bro-mongoose');
+const bcrypt = require('bcrypt');
+const User = require('../models/User');
 
 const mongoose = require('mongoose');
 
@@ -11,6 +13,23 @@ const adminBro = new AdminBro({
     rootPath: '/admin'
 });
 
-const router = AdminBroExpress.buildRouter(adminBro);
+const router = AdminBroExpress.buildAuthenticatedRouter(adminBro, {
+    cookieName: 'admin-bro',
+    cookiePassword: process.env.JWTSECRET,
+    authenticate: async (email, password) => {
+        const user = await User.findOne({ email });
+
+        if (user) {
+            const validCredentials = await bcrypt.compare(password, user.password);
+            const isAdmin = user.type === 'admin';
+
+            if (validCredentials && isAdmin) {
+                return user;
+            }
+        }
+
+        return null;
+    }
+});
 
 module.exports = router;
