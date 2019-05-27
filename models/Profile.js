@@ -5,12 +5,12 @@ const ProfileSchema = new mongoose.Schema({
     name: { type: String }, // Company name
     firstname: { type: String },
     surname: { type: String },
-    type: { type: String, required: true },    //company or student
-    status: { type: String }, //Employed or unemployed etc
+    type: { type: String, required: true },
+    status: { type: String },
     description: { type: String, default: '--' },
     industry: { type: String },
     skills: { type: [String] },
-    location: { type: String }, //Either you write your own information on all fields or what you require as company ? Probably need to make a better solution for this later..
+    location: { type: String },
     picture: { type: String, default: 'https://i.imgur.com/EuSn6V6.jpg' },
     website: { type: String },
     language: { type: String },

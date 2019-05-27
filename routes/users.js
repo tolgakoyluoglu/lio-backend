@@ -19,7 +19,6 @@ router.post('/register', function (req, res) {
     else if (!['Student', 'Company'].includes(type)) {
         return res.status(401).json({ msg: 'Please enter a valid user type' })
     }
-
     //Check if email already exists
     User.findOne({ email })
         .then(user => {
@@ -45,7 +44,6 @@ router.post('/register', function (req, res) {
                         ...nameProps,
                         industry
                     }).save();
-
                     //Create token and send it with the response
                     const payload = { user: { id: user.id, email: user.email } }
                     let token = jwt.sign(
@@ -67,7 +65,6 @@ router.post('/register', function (req, res) {
         })
     })
 });
-
 /* Login user */
 router.post('/login', (req, res) => {
     const { email, password } = req.body
@@ -77,7 +74,6 @@ router.post('/login', (req, res) => {
                 bcrypt.compare(password, user.password).then(async isAuthed => {
                     if (isAuthed) {
                         const profile = await Profile.findOne({ user: user.id });
-
                         const payload = { user: { id: user.id, email: user.email } }
                         let token = jwt.sign(
                             payload,
