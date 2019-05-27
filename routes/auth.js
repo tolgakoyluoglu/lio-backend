@@ -6,7 +6,6 @@ const auth = require('../middleware/requireAuth')
 router.get('/', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id)
-        console.log('Auth works')
     } catch (err) {
         console.error(err.message)
         res.status(500).send('Error from auth')
