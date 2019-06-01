@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const normalizeUrl = require('normalize-url');
 
 const ProfileSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -37,6 +38,11 @@ const ProfileSchema = new mongoose.Schema({
             isStudying: { type: Boolean, default: false },
         }
     ]
+});
+
+ProfileSchema.post('findOneAndUpdate', function (doc) {
+    doc.website = normalizeUrl(doc.website);
+    doc.save();
 });
 
 module.exports = mongoose.model('Profile', ProfileSchema);
